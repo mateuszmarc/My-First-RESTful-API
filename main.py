@@ -11,8 +11,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JSON_AS_ASCII'] = False
 db = SQLAlchemy(app)
 
+api_key = '1234567'
 
-##Cafe TABLE Configuration
+
+# Cafe TABLE Configuration
 def not_found():
     return {
         "Not Found": "Sorry, we don't have a cafe at that location."
@@ -29,6 +31,20 @@ def failed_patch():
     return {
         "Failed": "Sorry we don't have cafe with passed id."
     }
+
+
+def delete_success():
+    return {
+        "Success": "Cafe deleted successfully."
+    }
+
+
+def wrong_api():
+    return {
+        "Error": "Wrong Api key provided."
+    }
+
+
 class Cafe(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), unique=True, nullable=False)
@@ -97,7 +113,7 @@ def add():
         return jsonify(result=added_successfully())
 
 
-@app.route('/update-price/<int:cafe_id>', methods=['GET','PATCH'])
+@app.route('/update-price/<int:cafe_id>', methods=['GET', 'PATCH'])
 def update_price(cafe_id):
     if request.method == 'PATCH':
         cafe_ids = [cafe.id for cafe in db.session.query(Cafe).all()]
@@ -107,6 +123,23 @@ def update_price(cafe_id):
             cafe_to_update.coffee_price = new_price
             db.session.commit()
             return jsonify(result=added_successfully())
+        else:
+            return jsonify(result=failed_patch())
+
+
+@app.route('/report-closed/<cafe_id>', methods=['DELETE', 'GET'])
+def delete_cafe(cafe_id):
+    if request.method == 'DELETE':
+        all_cafes_ids = [int(cafe.id) for cafe in db.session.query(Cafe).all()]
+        if int(cafe_id) in all_cafes_ids:
+            if api_key == request.args.get('Api_key'):
+                cafe_to_close = Cafe.query.get(cafe_id)
+                db.session.delete(cafe_to_close)
+                db.session.commit()
+                return jsonify(result=delete_success())
+            else:
+                return jsonify(error=wrong_api())
+
         else:
             return jsonify(result=failed_patch())
 
