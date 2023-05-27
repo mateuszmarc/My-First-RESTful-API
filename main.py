@@ -98,16 +98,17 @@ def search_by_location():
 @app.route('/add', methods=['POST'])
 def add():
     if request.method == 'POST':
-        new_cafe = Cafe(name=request.form.get('name'),
-                        map_url=request.form.get('map_url'),
-                        img_url=request.form.get('image_url', ),
-                        location=request.form.get('location'),
-                        seats=request.form.get('seats'),
-                        has_toilet=int(request.form.get('has_toilet')),
-                        has_wifi=int(request.form.get('has_wifi')),
-                        has_sockets=int(request.form.get('has_sockets')),
-                        can_take_calls=int(request.form.get('can_take_calls')),
-                        coffee_price=request.form.get('coffee_price'))
+        new_cafe = Cafe()
+        new_cafe.name = request.form.get('name')
+        new_cafe.map_url = request.form.get('map_url')
+        new_cafe.img_url = request.form.get('image_url')
+        new_cafe.location = request.form.get('location')
+        new_cafe.seats = request.form.get('seats')
+        new_cafe.has_toilet = int(request.form.get('has_toilet'))
+        new_cafe.has_wifi = int(request.form.get('has_wifi'))
+        new_cafe.has_sockets = int(request.form.get('has_sockets'))
+        new_cafe.can_take_calls = int(request.form.get('can_take_calls'))
+        new_cafe.coffee_price = request.form.get('coffee_price')
         db.session.add(new_cafe)
         db.session.commit()
         return jsonify(result=added_successfully())
